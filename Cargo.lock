@@ -526,6 +526,7 @@ dependencies = [
  "diesel",
  "dotenv",
  "lazy_static",
+ "log",
  "pyo3",
  "r2d2",
  "r2d2-diesel",

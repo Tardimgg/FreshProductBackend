@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
+use log::info;
 
 use std::env;
 use diesel::connection::SimpleConnection;
@@ -9,19 +10,21 @@ use r2d2_diesel::ConnectionManager;
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 pub fn start_db() {
-
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
     let conn = PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
 
-    conn.batch_execute("CREATE TABLE auth (
+
+    if let Err(err) = conn.batch_execute("CREATE TABLE auth (
     user_id serial PRIMARY KEY,
     login VARCHAR ( 50 ) UNIQUE NOT NULL,
     hash_password VARCHAR ( 255 ) NOT NULL
-    );").unwrap();
+    );") {
+        info!("info message: {}", err);
+    }
 
-    conn.batch_execute("CREATE TABLE products (
+    if let Err(err) = conn.batch_execute("CREATE TABLE products (
     value_id serial PRIMARY KEY,
     user_id INT NOT NULL,
     product_id_on_device INT NOT NULL,
@@ -30,13 +33,12 @@ pub fn start_db() {
     product_subtitle VARCHAR ( 50 ) NOT NULL,
     expiration_date BIGINT NOT NULL,
     start_tracking_date BIGINT NOT NULL
-    );").unwrap();
-
-    
+    );") {
+        info!("info message: {}", err);
+    }
 }
 
 pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
-
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
     // PgConnection::establish(&database_url)
@@ -47,5 +49,4 @@ pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {
     Pool::builder()
         .build(manager)
         .expect("Failed to create pool.")
-
 }
