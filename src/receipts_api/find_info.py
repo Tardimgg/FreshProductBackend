@@ -11,7 +11,7 @@ def get_receipt_info(fn, fd, fp, sum_amount, date, time, receipt_type):
     # sum_amount = "23.80"
     # date = "07.07.2022"
     # time = "19:27"
-    # receipt_type = "Приход"
+    # receipt_type = "Prixod"
 
     options = webdriver.ChromeOptions()
     options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
