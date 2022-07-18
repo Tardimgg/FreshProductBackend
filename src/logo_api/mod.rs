@@ -12,7 +12,6 @@ use reqwest::header::{ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CACHE_CONTROL, C
 
 #[get("/get_logo/{name}")]
 pub async fn find_logo(name: web::Path<String>) -> impl Responder {
-
     let name = name.into_inner();
 
     let mut headers = header::HeaderMap::new();
@@ -35,41 +34,42 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     }
 
     // if let Ok(ok_client) = client {
-        let res = match CLIENT.get(format!("http://yandex.ru/images/search?from=tabbar&text={}", name)).headers(headers).send().await {
-            Ok(v) => { v }
-            Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()) }
-        }.text().await;
+    let res = match CLIENT.get(format!("http://yandex.ru/images/search?from=tabbar&text={}", name)).headers(headers).send().await {
+        Ok(v) => { v }
+        Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
+    }.text().await;
 
-        let res = match res {
-            Ok(v) => { v }
-            Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
-        };
+    let res = match res {
+        Ok(v) => { v }
+        Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
+    };
 
-        // println!("request");
+    // println!("request");
 
-        lazy_static! {
+    lazy_static! {
             static ref RE: Regex = Regex::new(r#""preview":\[\{"url":"([^"]+)"#).unwrap();
+    }
+
+    let caps = RE.captures_iter(res.as_str());
+
+    let mut ans = Vec::new();
+
+    for val in caps {
+        let url = &val[1];
+        if url.starts_with("http") {
+            ans.push(url.to_string());
+        } else {
+            ans.push(format!("https://{url}"));
         }
+    }
 
-        let caps = RE.captures_iter(res.as_str());
-
-        let mut ans = Vec::new();
-
-        for val in caps {
-            let url = &val[1];
-            if url.starts_with("http") {
-                ans.push(url.to_string());
-            } else {
-                ans.push(format!("https://{url}"));
-            }
-
-        }
+    if res.contains("Нам очень жаль") {
+        return HttpResponse::Ok().body("the external server is overloaded");
+    }
 
 
-
-        return HttpResponse::Ok().json(ans);
+    return HttpResponse::Ok().json(ans);
     // }
 
     // return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish();
-
 }
