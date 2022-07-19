@@ -15,15 +15,17 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     let name = name.into_inner();
 
     let mut headers = header::HeaderMap::new();
-    headers.insert(HOST, "yandex.ru".parse().unwrap());
-    headers.insert(USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36".parse().unwrap());
-    headers.insert(ACCEPT, "*/*".parse().unwrap());
-    headers.insert(CONNECTION, "keep-alive".parse().unwrap());
+    // headers.insert(HOST, "yandex.ru".parse().unwrap());
+    // headers.insert(HOST, "google.com".parse().unwrap());
+    // headers.insert(USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36".parse().unwrap());
+    // headers.insert(ACCEPT, "*/*".parse().unwrap());
+    // headers.insert(CONNECTION, "keep-alive".parse().unwrap());
     // headers.insert(ACCEPT_ENCODING, "gzip, deflate, br".parse().unwrap());
-    headers.insert(ACCEPT_LANGUAGE, "en-US;q=0.5,en;q=0.3".parse().unwrap());
+    // headers.insert(ACCEPT_LANGUAGE, "en-US;q=0.5,en;q=0.3".parse().unwrap());
     // headers.insert(CACHE_CONTROL, "max-age=0".parse().unwrap());
     // headers.insert(UPGRADE_INSECURE_REQUESTS, "1".parse().unwrap());
-    headers.insert(REFERER, "https://google.com".parse().unwrap());
+    // headers.insert(REFERER, "https://google.com".parse().unwrap());
+    // headers.insert(REFERER, "https://yandex.ru".parse().unwrap());
 
     // headers.insert("Host", "yandex.ru".parse().unwrap());
     // headers.insert("User-Agent", "curl/7.84.0".parse().unwrap());
@@ -33,8 +35,11 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
         static ref CLIENT: Client = reqwest::Client::builder().build().unwrap();
     }
 
+    // let url = format!("http://yandex.ru/images/search?from=tabbar&text={}", name);
+    let url = format!("https://www.google.ru/search?q={}&tbm=isch", name);
+
     // if let Ok(ok_client) = client {
-    let res = match CLIENT.get(format!("http://yandex.ru/images/search?from=tabbar&text={}", name)).headers(headers).send().await {
+    let res = match CLIENT.get(url).headers(headers).send().await {
         Ok(v) => { v }
         Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
     }.text().await;
@@ -47,7 +52,8 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     // println!("request");
 
     lazy_static! {
-            static ref RE: Regex = Regex::new(r#""preview":\[\{"url":"([^"]+)"#).unwrap();
+        // static ref RE: Regex = Regex::new(r#""preview":\[\{"url":"([^"]+)"#).unwrap(); // yandex
+        static ref RE: Regex = Regex::new(r#"class="yWs4tf" alt="" src="([^"]+)"#).unwrap(); // google
     }
 
     let caps = RE.captures_iter(res.as_str());
@@ -59,7 +65,7 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
         if url.starts_with("http") {
             ans.push(url.to_string());
         } else {
-            ans.push(format!("https://{url}"));
+            ans.push(format!("http://{url}"));
         }
     }
 
@@ -69,7 +75,6 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
 
 
     return HttpResponse::Ok().json(ans);
-    // }
 
     // return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish();
 }
