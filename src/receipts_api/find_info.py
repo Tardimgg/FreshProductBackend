@@ -17,6 +17,8 @@ def get_receipt_info(fn, fd, fp, sum_amount, date, time, receipt_type):
     options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument("--window-size=1280,720")
     options.add_argument('--headless')
+    options.add_argument("--disable-dev-shm-usage")
+
 
     # driver = webdriver.Chrome(chrome_options=options)
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options)
