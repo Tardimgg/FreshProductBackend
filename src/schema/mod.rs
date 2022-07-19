@@ -13,7 +13,7 @@ table! {
         value_id -> Int4,
         user_id -> Int4,
         product_id_on_device -> Int4,
-        image_drawable -> Text,
+        image_url -> Text,
         product_title -> Varchar,
         product_subtitle -> Varchar,
         expiration_date -> Int8,

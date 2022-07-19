@@ -13,7 +13,7 @@ pub struct RequestCreateNewProduct {
     login: String,
     password: String,
     product_id_on_device: i32,
-    image_drawable: String,
+    image_url: String,
     product_title: String,
     product_subtitle: String,
     expiration_date: i64,
@@ -31,7 +31,7 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
             let new_product = NewProduct {
                 user_id: user.user_id,
                 product_id_on_device: request.product_id_on_device,
-                image_drawable: request.image_drawable,
+                image_url: request.image_url,
                 product_title: request.product_title,
                 product_subtitle: request.product_subtitle,
                 expiration_date: request.expiration_date,

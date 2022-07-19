@@ -29,7 +29,7 @@ pub struct Product {
     pub value_id: i32,
     pub user_id: i32,
     pub product_id_on_device: i32,
-    pub image_drawable: String,
+    pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
     pub expiration_date: i64,
@@ -40,7 +40,7 @@ impl Product {
     pub fn cutting(self) -> CroppedProduct {
         CroppedProduct {
             product_id_on_device: self.product_id_on_device,
-            image_drawable: self.image_drawable,
+            image_url: self.image_url,
             product_title: self.product_title,
             product_subtitle: self.product_subtitle,
             expiration_date: self.expiration_date,
@@ -54,7 +54,7 @@ impl Product {
 pub struct NewProduct {
     pub user_id: i32,
     pub product_id_on_device: i32,
-    pub image_drawable: String,
+    pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
     pub expiration_date: i64,
@@ -64,7 +64,7 @@ pub struct NewProduct {
 #[derive(Serialize)]
 pub struct CroppedProduct {
     pub product_id_on_device: i32,
-    pub image_drawable: String,
+    pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
     pub expiration_date: i64,
