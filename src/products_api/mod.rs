@@ -78,7 +78,7 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
     }
 }
 
-#[get("/product")]
+#[post("/product")]
 pub async fn get_products(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl Responder {
 
     let conn = db_pool.get().unwrap();
