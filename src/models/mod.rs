@@ -70,3 +70,17 @@ pub struct CroppedProduct {
     pub expiration_date: i64,
     pub start_tracking_date: i64
 }
+
+#[derive(Serialize)]
+pub struct Response<T: Serialize> {
+    answer: T
+}
+
+impl<T: Serialize> Response<T> {
+
+    pub fn new(v: T) -> Response<T>{
+        Response {
+            answer: v
+        }
+    }
+}

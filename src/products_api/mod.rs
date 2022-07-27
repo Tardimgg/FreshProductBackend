@@ -2,7 +2,7 @@ use actix_web::{get, post, delete, HttpResponse, Responder, web};
 use actix_web::http::StatusCode;
 use diesel::{EqAll, QueryDsl, RunQueryDsl};
 use crate::data_base::DbPool;
-use crate::models::{CroppedProduct, NewProduct, Product, User};
+use crate::models::{CroppedProduct, NewProduct, Product, Response, User};
 
 use serde::Deserialize;
 use crate::auth_api::{check_user_registration, get_auth_user};
@@ -95,9 +95,9 @@ pub async fn get_products(db_pool: web::Data<DbPool>, user: web::Json<User>) -> 
                 Ok(v) => {
                     match v {
                         Ok(res) => {
-                            HttpResponse::Ok().json(res.into_iter().map(|v| v.cutting()).collect::<Vec<CroppedProduct>>())
+                            HttpResponse::Ok().json(Response::new(res.into_iter().map(|v| v.cutting()).collect::<Vec<CroppedProduct>>()))
                         }
-                        Err(v) => { HttpResponse::BadRequest().body(v.to_string()) }
+                        Err(v) => { HttpResponse::Ok().body(v.to_string()) }
                     }
                 }
                 Err(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }

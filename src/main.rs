@@ -10,7 +10,7 @@ mod products_api;
 mod hashing_api;
 mod logo_api;
 
-// use dotenv::dotenv;
+use dotenv::dotenv;
 
 use std::env;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
