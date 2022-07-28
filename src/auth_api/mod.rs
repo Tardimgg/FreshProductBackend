@@ -9,6 +9,8 @@ use crate::hashing_api::{hashing_password, verify_password};
 use crate::auth_api::VerifyUserErr::{InternalError, InvalidLogin, InvalidPassword};
 use crate::hashing_api::VerifyPasswordErr;
 use crate::schema::auth;
+use serde::Serialize;
+
 
 
 #[post("/register")]
@@ -44,6 +46,30 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
 
         // .get_result::<AuthUser>(&conn)
         // .expect("Error saving new user");
+}
+
+
+#[derive(Serialize)]
+struct RegisteredResponse {
+    message: String
+}
+
+#[post("/check_registration")]
+pub async fn check_registration(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl Responder {
+
+    let user = user.into_inner();
+
+    let mut response = RegisteredResponse { message: "".to_string() };
+
+    match check_user_registration(&db_pool, user.login, &user.password).await {
+        Ok(v) => { response.message = String::from("registered") }
+        Err(e) => { match e {
+            InvalidLogin => { response.message = String::from("user not found") }
+            InvalidPassword => { response.message = String::from("invalid password") }
+            InternalError(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
+        } }
+    }
+    HttpResponse::Ok().json(response)
 }
 
 pub enum VerifyUserErr {

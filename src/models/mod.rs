@@ -73,14 +73,14 @@ pub struct CroppedProduct {
 
 #[derive(Serialize)]
 pub struct JsonResponse<T: Serialize> {
-    answer: T
+    response: T
 }
 
 impl<T: Serialize> JsonResponse<T> {
 
     pub fn new(v: T) -> JsonResponse<T>{
         JsonResponse {
-            answer: v
+            response: v
         }
     }
 }
