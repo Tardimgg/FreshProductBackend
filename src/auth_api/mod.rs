@@ -91,8 +91,8 @@ pub fn get_auth_user(user: Result<AuthUser, VerifyUserErr>) -> Result<AuthUser, 
         Ok(v) => { Ok(v) }
         Err(err) => {
             Err(match err {
-                InvalidLogin => { HttpResponse::BadRequest().body("user not found") }
-                InvalidPassword => { HttpResponse::BadRequest().body("invalid password") }
+                InvalidLogin => { HttpResponse::Ok().body("user not found") }
+                InvalidPassword => { HttpResponse::Ok().body("invalid password") }
                 InternalError(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
             })
         }
