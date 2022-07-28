@@ -38,7 +38,7 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
     }).await {
         Ok(v) => {
             match v {
-                Ok(_) => { HttpResponse::Ok().body("success") }
+                Ok(_) => { HttpResponse::Ok().json(JsonResponse::new("success")) }
                 Err(v) => {
                     if v.to_string().contains("duplicate key value violates unique constraint") {
                         return HttpResponse::Ok().json(JsonResponse::new("this entry already exists"));
