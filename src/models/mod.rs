@@ -72,14 +72,14 @@ pub struct CroppedProduct {
 }
 
 #[derive(Serialize)]
-pub struct Response<T: Serialize> {
+pub struct JsonResponse<T: Serialize> {
     answer: T
 }
 
-impl<T: Serialize> Response<T> {
+impl<T: Serialize> JsonResponse<T> {
 
-    pub fn new(v: T) -> Response<T>{
-        Response {
+    pub fn new(v: T) -> JsonResponse<T>{
+        JsonResponse {
             answer: v
         }
     }

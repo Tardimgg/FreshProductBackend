@@ -30,7 +30,9 @@ async fn hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    // dotenv().ok();
+    if env::var("HEROKU").is_err() {
+        dotenv().ok();
+    }
 
     let port = env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())

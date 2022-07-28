@@ -3,7 +3,7 @@ use actix_web::http::StatusCode;
 use diesel::{EqAll, QueryDsl, RunQueryDsl};
 
 use crate::data_base::DbPool;
-use crate::models::{AuthUser, NewAuthUser, User};
+use crate::models::{AuthUser, NewAuthUser, JsonResponse, User};
 use crate::hashing_api::{hashing_password, verify_password};
 
 use crate::auth_api::VerifyUserErr::{InternalError, InvalidLogin, InvalidPassword};
@@ -91,8 +91,8 @@ pub fn get_auth_user(user: Result<AuthUser, VerifyUserErr>) -> Result<AuthUser, 
         Ok(v) => { Ok(v) }
         Err(err) => {
             Err(match err {
-                InvalidLogin => { HttpResponse::Ok().body("user not found") }
-                InvalidPassword => { HttpResponse::Ok().body("invalid password") }
+                InvalidLogin => { HttpResponse::Ok().json(JsonResponse::new("user not found")) }
+                InvalidPassword => { HttpResponse::Ok().json(JsonResponse::new("invalid password")) }
                 InternalError(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
             })
         }
