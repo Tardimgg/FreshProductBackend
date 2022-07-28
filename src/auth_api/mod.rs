@@ -21,7 +21,7 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
 
     let hash_password = match hashing_password(&user.password) {
         Ok(v) => { v }
-        Err(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
+        Err(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish(); }
     };
 
     let new_user = NewAuthUser {
@@ -39,7 +39,12 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
         Ok(v) => {
             match v {
                 Ok(_) => { HttpResponse::Ok().body("success") }
-                Err(v) => { HttpResponse::BadRequest().body(v.to_string()) }
+                Err(v) => {
+                    if v.to_string().contains("duplicate key value violates unique constraint") {
+                        return HttpResponse::Ok().json(JsonResponse::new("this entry already exists"));
+                    }
+                    HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish()
+                }
             }}
         Err(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
     }
@@ -49,27 +54,17 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
 }
 
 
-#[derive(Serialize)]
-struct RegisteredResponse {
-    message: String
-}
 
 #[post("/check_registration")]
 pub async fn check_registration(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl Responder {
 
     let user = user.into_inner();
 
-    let mut response = RegisteredResponse { message: "".to_string() };
-
-    match check_user_registration(&db_pool, user.login, &user.password).await {
-        Ok(v) => { response.message = String::from("registered") }
-        Err(e) => { match e {
-            InvalidLogin => { response.message = String::from("user not found") }
-            InvalidPassword => { response.message = String::from("invalid password") }
-            InternalError(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
-        } }
+    match get_auth_user(check_user_registration(&db_pool, user.login, &user.password).await) {
+        Ok(_) => { HttpResponse::Ok().json(JsonResponse::new("registered")) }
+        Err(e) => { e }
     }
-    HttpResponse::Ok().json(response)
+
 }
 
 pub enum VerifyUserErr {

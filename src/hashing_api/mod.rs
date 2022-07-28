@@ -13,7 +13,7 @@ pub fn hashing_password(password: &str) -> Result<String, String> {
         Err(v) => { v.to_string() }
     };
 
-    println!("password = {}\n salt = {}", password_hash, salt.to_string());
+    // println!("password = {}\n salt = {}", password_hash, salt.to_string());
     Ok(password_hash)
 
 }
