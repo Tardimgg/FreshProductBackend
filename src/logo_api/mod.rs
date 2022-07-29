@@ -4,6 +4,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Client, header};
 use reqwest::header::{ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CACHE_CONTROL, CONNECTION, HeaderValue, HOST, REFERER, UPGRADE_INSECURE_REQUESTS, USER_AGENT};
+use crate::models::JsonResponse;
 
 // const CURRENT_USER_AGENT: &'static str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
@@ -70,11 +71,11 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     }
 
     if res.contains("Нам очень жаль") {
-        return HttpResponse::Ok().body("the external server is overloaded");
+        return HttpResponse::Ok().json(JsonResponse::new("the external server is overloaded"));
     }
 
 
-    return HttpResponse::Ok().json(ans);
+    return HttpResponse::Ok().json(JsonResponse::new(ans));
 
     // return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish();
 }

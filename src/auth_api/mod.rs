@@ -19,6 +19,10 @@ pub async fn register(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl
     let conn = db_pool.get().unwrap();
     let user = user.into_inner();
 
+    if user.login.trim() == "" || user.password.trim() == "" {
+        return HttpResponse::BadRequest().json(JsonResponse::new("fields cannot be empty"));
+    }
+
     let hash_password = match hashing_password(&user.password) {
         Ok(v) => { v }
         Err(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish(); }
