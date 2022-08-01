@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 import os
 
-def get_receipt_info(fn, fd, fp, sum_amount, date, time, receipt_type):
+def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
 
     # fn = "9960440301300647"
     # fd = "115332"
@@ -36,7 +36,7 @@ def get_receipt_info(fn, fd, fp, sum_amount, date, time, receipt_type):
     elem.send_keys(fp)
 
     elem = driver.find_element(By.ID, "b-checkform_s")
-    elem.send_keys(sum_amount)
+    elem.send_keys(total_sum)
 
     elem = driver.find_element(By.ID, "b-checkform_date")
     elem.send_keys(date)

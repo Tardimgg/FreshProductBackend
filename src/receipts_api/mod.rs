@@ -1,16 +1,17 @@
-use actix_web::{get, HttpResponse, Responder, web};
+use actix_web::{get, post, HttpResponse, Responder, web};
 use lazy_static::lazy_static;
 use pyo3::Python;
 use pyo3::types::PyModule;
 
 use serde::{Deserialize};
+use crate::models::JsonResponse;
 
 #[derive(Deserialize)]
 pub struct Receipt {
     fn_param: String,
     fd: String,
     fp: String,
-    sum_amount: String,
+    total_sum: String,
     date: String,
     time: String,
     receipt_type: String
@@ -25,7 +26,7 @@ lazy_static! {
     static ref CODE: &'static str = include_str!("find_info.py");
 }
 
-#[get("/get_receipt_info")]
+#[post("/get_receipt_info")]
 pub async fn get_receipt_info(info: web::Json<Receipt>) -> impl Responder {
 
     let gil = Python::acquire_gil();
@@ -43,7 +44,7 @@ pub async fn get_receipt_info(info: web::Json<Receipt>) -> impl Responder {
             &info.fn_param,
             &info.fd,
             &info.fp,
-            &info.sum_amount,
+            &info.total_sum,
             &info.date,
             &info.time,
             &info.receipt_type
@@ -53,7 +54,7 @@ pub async fn get_receipt_info(info: web::Json<Receipt>) -> impl Responder {
 
         match res.len() {
             0 => HttpResponse::NotFound().body("No found"),
-            _ => HttpResponse::Ok().body(res.join(" "))
+            _ => HttpResponse::Ok().body(JsonResponse::new(res))
         }
 
 
