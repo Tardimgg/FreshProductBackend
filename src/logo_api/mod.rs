@@ -15,6 +15,14 @@ use crate::models::JsonResponse;
 pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     let name = name.into_inner();
 
+    match get_logo_url(&name).await {
+        Ok(v) => { HttpResponse::Ok().json(JsonResponse::new(v)) }
+        Err(e) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(e) }
+    }
+}
+
+pub async fn get_logo_url(name: &str) -> Result<Vec<String>, String> {
+
     let mut headers = header::HeaderMap::new();
     // headers.insert(HOST, "yandex.ru".parse().unwrap());
     // headers.insert(HOST, "google.com".parse().unwrap());
@@ -42,12 +50,12 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
     // if let Ok(ok_client) = client {
     let res = match CLIENT.get(url).headers(headers).send().await {
         Ok(v) => { v }
-        Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
+        Err(err) => { return Err(err.to_string()); }
     }.text().await;
 
     let res = match res {
         Ok(v) => { v }
-        Err(err) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).body(err.to_string()); }
+        Err(err) => { return Err(err.to_string()); }
     };
 
     // println!("request");
@@ -70,12 +78,12 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
         }
     }
 
-    if res.contains("Нам очень жаль") {
-        return HttpResponse::Ok().json(JsonResponse::new("the external server is overloaded"));
-    }
+    // if res.contains("Нам очень жаль") {
+    //     return HttpResponse::Ok().json(JsonResponse::new("the external server is overloaded"));
+    // }
 
 
-    return HttpResponse::Ok().json(JsonResponse::new(ans));
+    return Ok(ans);
 
     // return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish();
 }

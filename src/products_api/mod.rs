@@ -6,6 +6,7 @@ use crate::models::{CroppedProduct, NewProduct, Product, JsonResponse, User};
 
 use serde::Deserialize;
 use crate::auth_api::{check_user_registration, get_auth_user};
+use crate::logo_api::get_logo_url;
 use crate::schema::products;
 
 #[derive(Deserialize)]
@@ -28,7 +29,7 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
 
     match get_auth_user(check_user_registration(&db_pool, request.login, &request.password).await) {
         Ok(user) => {
-            let new_product = NewProduct {
+            let mut new_product = NewProduct {
                 user_id: user.user_id,
                 product_id_on_device: request.product_id_on_device,
                 image_url: request.image_url,
@@ -37,6 +38,13 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
                 expiration_date: request.expiration_date,
                 start_tracking_date: request.start_tracking_date,
             };
+
+            if new_product.image_url.trim() == "" {
+                new_product.image_url = match get_logo_url(&new_product.product_subtitle).await {
+                    Ok(mut v) => { if v.len() > 0 { v.swap_remove(0)} else { "".to_string() } }
+                    Err(_) => { "".to_string() }
+                }
+            }
 
             match web::block(move || {
                 products::dsl::products
