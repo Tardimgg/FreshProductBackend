@@ -1,4 +1,4 @@
-use actix_web::{get, post, delete, HttpResponse, Responder, web};
+use actix_web::{get, post, delete, patch, HttpResponse, Responder, web};
 use actix_web::http::StatusCode;
 use diesel::{EqAll, QueryDsl, RunQueryDsl};
 use crate::data_base::DbPool;
@@ -13,12 +13,14 @@ use crate::schema::products;
 pub struct RequestCreateNewProduct {
     login: String,
     password: String,
-    product_id_on_device: i32,
+    product_id_on_device: i64,
+    left_node_id: i64,
+    right_node_id: i64,
     image_url: String,
     product_title: String,
     product_subtitle: String,
     expiration_date: i64,
-    start_tracking_date: i64
+    start_tracking_date: i64 // must be delete
 }
 
 #[post("/product")]
@@ -32,6 +34,8 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
             let mut new_product = NewProduct {
                 user_id: user.user_id,
                 product_id_on_device: request.product_id_on_device,
+                left_node_id: request.left_node_id,
+                right_node_id: request.right_node_id,
                 image_url: request.image_url,
                 product_title: request.product_title,
                 product_subtitle: request.product_subtitle,
@@ -86,6 +90,75 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
     }
 }
 
+#[patch("/product")]
+pub async fn update_product(db_pool: web::Data<DbPool>, request: web::Json<RequestCreateNewProduct>) -> impl Responder {
+
+    let conn = db_pool.get().unwrap();
+    let request = request.into_inner();
+
+    match get_auth_user(check_user_registration(&db_pool, request.login, &request.password).await) {
+        Ok(user) => {
+            let mut new_product = NewProduct {
+                user_id: user.user_id,
+                product_id_on_device: request.product_id_on_device,
+                left_node_id: request.left_node_id,
+                right_node_id: request.right_node_id,
+                image_url: request.image_url,
+                product_title: request.product_title,
+                product_subtitle: request.product_subtitle,
+                expiration_date: request.expiration_date,
+                start_tracking_date: request.start_tracking_date,
+            };
+
+            if new_product.image_url.trim() == "" {
+                new_product.image_url = match get_logo_url(&new_product.product_subtitle).await {
+                    Ok(mut v) => { if v.len() > 0 { v.swap_remove(0)} else { "".to_string() } }
+                    Err(_) => { "".to_string() }
+                }
+            }
+
+            match web::block(move || {
+                products::dsl::products
+                    .filter(products::user_id.eq_all(new_product.user_id))
+                    .filter(products::product_id_on_device.eq_all(new_product.product_id_on_device))
+                    .limit(1)
+                    .load::<Product>(&*conn)
+            }).await {
+                Ok(v) => {
+                    match v {
+                        Ok(res) => {
+                            if res.len() != 1 {
+                                return HttpResponse::BadRequest().body(String::from("required entry does not exist"));
+                            }
+                        }
+                        Err(v) => { return HttpResponse::BadRequest().body(v.to_string()); }
+                    }
+                }
+                Err(_) => { return HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish(); }
+            }
+
+            let conn = db_pool.get().unwrap();
+
+            match web::block(move || {
+                diesel::update(products::table)
+                    .set(new_product)
+                    // .values(new_product)
+                    .execute(&*conn)
+
+            }).await {
+                Ok(v) => {
+                    match v {
+                        Ok(_) => { HttpResponse::Ok().body("success") }
+                        Err(v) => { HttpResponse::BadRequest().body(v.to_string()) }
+                    }}
+                Err(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
+            }
+        }
+        Err(err) => { err }
+    }
+}
+
+
 #[post("/get_products")]
 pub async fn get_products(db_pool: web::Data<DbPool>, user: web::Json<User>) -> impl Responder {
 
@@ -119,7 +192,7 @@ pub async fn get_products(db_pool: web::Data<DbPool>, user: web::Json<User>) -> 
 pub struct RequestDeleteProduct {
     pub login: String,
     pub password: String,
-    pub product_id_on_device: i32
+    pub product_id_on_device: i64
 }
 
 #[delete("/product")]

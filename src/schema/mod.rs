@@ -10,9 +10,11 @@ table! {
 
 table! {
     products (value_id) {
-        value_id -> Int4,
+        value_id -> Int8,
         user_id -> Int4,
-        product_id_on_device -> Int4,
+        product_id_on_device -> Int8,
+        left_node_id -> Int8,
+        right_node_id -> Int8,
         image_url -> Text,
         product_title -> Varchar,
         product_subtitle -> Varchar,

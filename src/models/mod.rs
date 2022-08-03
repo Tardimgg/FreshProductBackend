@@ -26,9 +26,11 @@ pub struct NewAuthUser {
 
 #[derive(Queryable)]
 pub struct Product {
-    pub value_id: i32,
+    pub value_id: i64, // change to i64
     pub user_id: i32,
-    pub product_id_on_device: i32,
+    pub product_id_on_device: i64,
+    pub left_node_id: i64,
+    pub right_node_id: i64,
     pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
@@ -40,6 +42,8 @@ impl Product {
     pub fn cutting(self) -> CroppedProduct {
         CroppedProduct {
             product_id_on_device: self.product_id_on_device,
+            left_node_id: self.left_node_id,
+            right_node_id: self.right_node_id,
             image_url: self.image_url,
             product_title: self.product_title,
             product_subtitle: self.product_subtitle,
@@ -49,11 +53,14 @@ impl Product {
     }
 }
 
+#[derive(AsChangeset)]
 #[derive(Insertable)]
 #[table_name="products"]
 pub struct NewProduct {
     pub user_id: i32,
-    pub product_id_on_device: i32,
+    pub product_id_on_device: i64,
+    pub left_node_id: i64,
+    pub right_node_id: i64,
     pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
@@ -63,7 +70,9 @@ pub struct NewProduct {
 
 #[derive(Serialize)]
 pub struct CroppedProduct {
-    pub product_id_on_device: i32,
+    pub product_id_on_device: i64,
+    pub left_node_id: i64,
+    pub right_node_id: i64,
     pub image_url: String,
     pub product_title: String,
     pub product_subtitle: String,
