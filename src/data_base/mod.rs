@@ -31,11 +31,11 @@ pub fn start_db() {
     left_node_id BIGINT NOT NULL,
     right_node_id BIGINT NOT NULL,
     image_url TEXT NOT NULL,
-    product_title VARCHAR ( 50 ) NOT NULL,
-    product_subtitle VARCHAR ( 50 ) NOT NULL,
+    product_title TEXT NOT NULL,
+    product_subtitle TEXT NOT NULL,
     expiration_date BIGINT NOT NULL,
     start_tracking_date BIGINT NOT NULL
-);") {
+") {
         info!("info message: {}", err);
     }
 }
