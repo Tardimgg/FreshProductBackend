@@ -21,6 +21,7 @@ pub fn start_db() {
     login VARCHAR ( 50 ) UNIQUE NOT NULL,
     hash_password VARCHAR ( 255 ) NOT NULL
     );") {
+        println!("info message {}", err);
         info!("info message: {}", err);
     }
 
@@ -35,7 +36,8 @@ pub fn start_db() {
     product_subtitle TEXT NOT NULL,
     expiration_date BIGINT NOT NULL,
     start_tracking_date BIGINT NOT NULL
-") {
+);") {
+        println!("info message {}", err);
         info!("info message: {}", err);
     }
 }
