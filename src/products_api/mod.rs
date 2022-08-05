@@ -195,7 +195,7 @@ pub struct RequestDeleteProduct {
     pub product_id_on_device: i64
 }
 
-#[delete("/product")]
+#[post("/delete_product")]
 pub async fn delete_product(db_pool: web::Data<DbPool>, request: web::Json<RequestDeleteProduct>) -> impl Responder {
 
     let conn = db_pool.get().unwrap();
