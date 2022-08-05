@@ -53,7 +53,7 @@ pub async fn get_receipt_info(info: web::Json<Receipt>) -> impl Responder {
 
 
         match res.len() {
-            0 => HttpResponse::NotFound().body("No found"),
+            0 => HttpResponse::Ok().json(JsonResponse::new("No found")),
             _ => HttpResponse::Ok().json(JsonResponse::new(res))
         }
 
