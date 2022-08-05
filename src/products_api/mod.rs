@@ -140,7 +140,7 @@ pub async fn update_product(db_pool: web::Data<DbPool>, request: web::Json<Reque
             let conn = db_pool.get().unwrap();
 
             match web::block(move || {
-                diesel::update(products::table)
+                diesel::update(products::table.filter(products::product_id_on_device.eq_all(new_product.product_id_on_device)))
                     .set(new_product)
                     // .values(new_product)
                     .execute(&*conn)
