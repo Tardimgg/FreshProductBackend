@@ -1,5 +1,4 @@
 use actix_web::{get, post, delete, patch, HttpResponse, Responder, web};
-use actix_web::error::BlockingError;
 use actix_web::http::StatusCode;
 use diesel::{EqAll, QueryDsl, QueryResult, RunQueryDsl};
 use crate::data_base::DbPool;
@@ -105,8 +104,10 @@ async fn get_max_product_id(db_pool: &web::Data<DbPool>, user_id: i32) -> Result
             match v {
                 Ok(v) => {
                     if v.len() == 0 {
-                        push_max_product_id(db_pool, user_id, 0);
-                        Ok(0)
+                        match push_max_product_id(db_pool, user_id, 0).await {
+                            Ok(_) => { Ok(0) }
+                            Err(e) => { Err(e) }
+                        }
                     } else {
                         Ok(v[0])
                     }

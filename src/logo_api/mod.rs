@@ -23,7 +23,7 @@ pub async fn find_logo(name: web::Path<String>) -> impl Responder {
 
 pub async fn get_logo_url(name: &str) -> Result<Vec<String>, String> {
 
-    let mut headers = header::HeaderMap::new();
+    let headers = header::HeaderMap::new();
     // headers.insert(HOST, "yandex.ru".parse().unwrap());
     // headers.insert(HOST, "google.com".parse().unwrap());
     // headers.insert(USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36".parse().unwrap());
