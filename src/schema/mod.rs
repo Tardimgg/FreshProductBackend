@@ -1,10 +1,15 @@
-use diesel::table;
-
 table! {
     auth (user_id) {
         user_id -> Int4,
         login -> Varchar,
         hash_password -> Varchar,
+    }
+}
+
+table! {
+    max_product_id (user_id) {
+        user_id -> Int4,
+        max_value_id -> Int8,
     }
 }
 
@@ -16,8 +21,8 @@ table! {
         left_node_id -> Int8,
         right_node_id -> Int8,
         image_url -> Text,
-        product_title -> Varchar,
-        product_subtitle -> Varchar,
+        product_title -> Text,
+        product_subtitle -> Text,
         expiration_date -> Int8,
         start_tracking_date -> Int8,
     }
@@ -25,5 +30,6 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     auth,
+    max_product_id,
     products,
 );

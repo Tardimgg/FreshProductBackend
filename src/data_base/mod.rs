@@ -2,6 +2,8 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use log::info;
 
+use diesel_migrations::run_pending_migrations;
+
 use std::env;
 use diesel::connection::SimpleConnection;
 use r2d2::Pool;
@@ -15,7 +17,15 @@ pub fn start_db() {
     let conn = PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
 
+    match run_pending_migrations(&conn) {
+        Ok(_) => {}
+        Err(e) => {
+            println!("info message {}", e.to_string());
+            info!("info message: {}", e.to_string());
+        }
+    };
 
+    /*
     if let Err(err) = conn.batch_execute("CREATE TABLE auth (
     user_id serial PRIMARY KEY,
     login VARCHAR ( 50 ) UNIQUE NOT NULL,
@@ -40,6 +50,8 @@ pub fn start_db() {
         println!("info message {}", err);
         info!("info message: {}", err);
     }
+
+     */
 }
 
 pub fn get_connection_pool() -> Pool<ConnectionManager<PgConnection>> {

@@ -1,6 +1,5 @@
 use diesel::{Insertable, Queryable};
-use crate::schema::auth;
-use crate::schema::products;
+use crate::schema::{auth, products, max_product_id};
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize)]
@@ -53,8 +52,14 @@ impl Product {
     }
 }
 
-#[derive(AsChangeset)]
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset, Copy, Clone)]
+#[table_name="max_product_id"]
+pub struct MaxProductId {
+    pub user_id: i32,
+    pub max_value_id: i64
+}
+
+#[derive(Insertable, AsChangeset)]
 #[table_name="products"]
 pub struct NewProduct {
     pub user_id: i32,
