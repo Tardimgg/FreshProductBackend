@@ -19,7 +19,7 @@ use crate::receipts_api::get_receipt_info;
 use auth_api::register;
 use crate::auth_api::check_registration;
 use crate::data_base::{get_connection_pool, start_db};
-use crate::products_api::{add_product, delete_product, get_products, update_product};
+use crate::products_api::{add_product, delete_product, get_products, update_neighbors, update_product};
 use crate::logo_api::find_logo;
 
 
@@ -56,6 +56,7 @@ async fn main() -> std::io::Result<()> {
             .service(find_logo)
             .service(check_registration)
             .service(update_product)
+            .service(update_neighbors)
             // .route("/hey", web::get().to(manual_hello))
     })
         .bind(("0.0.0.0", port))

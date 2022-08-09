@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use actix_web::{get, post, delete, patch, HttpResponse, Responder, web};
 use actix_web::http::StatusCode;
 use diesel::{EqAll, QueryDsl, QueryResult, RunQueryDsl};
@@ -12,7 +13,7 @@ use crate::schema::max_product_id;
 
 #[derive(Serialize)]
 pub struct ProductIdResponse {
-    new_product_id: i64
+    new_product_id: i64,
 }
 
 #[derive(Deserialize)]
@@ -77,7 +78,7 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
             match v {
                 Ok(_) => {
                     let response = ProductIdResponse {
-                        new_product_id: current_product_id
+                        new_product_id: current_product_id,
                     };
 
                     HttpResponse::Ok().json(response) }
@@ -85,6 +86,42 @@ pub async fn add_product(db_pool: web::Data<DbPool>, request: web::Json<RequestC
             }
         }
         Err(_) => { HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR).finish() }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct RequestUpdateNeighbors {
+    data: HashMap<i64, Vec<i64>>
+}
+
+#[post("/update_neighbors_products")]
+pub async fn update_neighbors(db_pool: web::Data<DbPool>, request: web::Json<RequestUpdateNeighbors>) -> impl Responder {
+    let request = request.into_inner();
+    let conn = db_pool.get().unwrap();
+
+    match web::block(move || {
+        for (id, value) in request.data {
+            if value.len() != 2 {
+                return Err("each element must have 2 neighbors".to_string());
+            }
+
+            if let Err(e) = diesel::update(products::table.filter(products::product_id_on_device.eq_all(id)))
+                .set((products::left_node_id.eq_all(value[0]), products::right_node_id.eq_all(value[1])))
+                // .values(new_product)
+                .execute(&*conn) {
+
+                return Err(e.to_string());
+            }
+        }
+        return Ok("success");
+    }).await {
+        Ok(v) => {
+            match v {
+                Ok(v) => { HttpResponse::Ok().json(JsonResponse::new(v)) }
+                Err(e) => { HttpResponse::BadRequest().json(JsonResponse::new(e)) }
+            }
+        }
+        Err(_) => { HttpResponse::InternalServerError().finish() }
     }
 }
 
@@ -258,7 +295,7 @@ pub async fn delete_product(db_pool: web::Data<DbPool>, request: web::Json<Reque
     let conn = db_pool.get().unwrap();
     let request = request.into_inner();
 
-    return match get_auth_user(check_user_registration(&db_pool, request.login, &request.password).await) {
+    match get_auth_user(check_user_registration(&db_pool, request.login, &request.password).await) {
         Ok(auth_user) => {
             match web::block(move || {
                 diesel::delete(
@@ -277,5 +314,5 @@ pub async fn delete_product(db_pool: web::Data<DbPool>, request: web::Json<Reque
             }
         }
         Err(err) => { err }
-    };
+    }
 }
