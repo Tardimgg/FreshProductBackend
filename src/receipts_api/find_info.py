@@ -13,6 +13,8 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
     # time = "19:27"
     # receipt_type = "Prixod"
 
+    return ["ewqofiow"]
+
     options = webdriver.ChromeOptions()
     options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument("--window-size=1280,720")
