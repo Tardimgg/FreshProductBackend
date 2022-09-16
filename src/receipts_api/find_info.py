@@ -13,8 +13,6 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
     # time = "19:27"
     # receipt_type = "Prixod"
 
-    return ["ewqofiow"]
-
     options = webdriver.ChromeOptions()
     options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument("--window-size=1280,720")
@@ -52,7 +50,7 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
     elem = driver.find_element(By.XPATH, "//*[@id='b-checkform_tab-props']/div/div/div/form/div[7]/div/button[1]")
     elem.click()
 
-    ans = []
+    ans = ["kok"]
 
     elem = driver.find_elements(By.CLASS_NAME, "b-check_item")
     for td in elem:
