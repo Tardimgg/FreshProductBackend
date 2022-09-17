@@ -51,13 +51,10 @@ pub async fn get_receipt_info(info: web::Json<Receipt>) -> impl Responder {
         );
         let res = activators.call_method1("get_receipt_info", param).unwrap().extract::<Vec<String>>().unwrap();
 
-        HttpResponse::Ok().json(JsonResponse::new(res))
-
-
-        // match res.len() {
-        //     0 => HttpResponse::Ok().json(JsonResponse::new("No found")),
-        //     _ => HttpResponse::Ok().json(JsonResponse::new(res))
-        // }
+        match res.len() {
+            0 => HttpResponse::Ok().json(JsonResponse::new("No found")),
+            _ => HttpResponse::Ok().json(JsonResponse::new(res))
+        }
 
 
     } else {

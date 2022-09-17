@@ -8,6 +8,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import os
 
+def format_text(text):
+    for i in range(len(text)):
+        if text[i].isalpha():
+            return text[i:]
+    return text
+
+
 def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
 
     # fn = "9960440301300647"
@@ -62,7 +69,7 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
         elem = driver.find_elements(By.CLASS_NAME, "b-check_item")
         for td in elem:
             v = td.find_element(By.XPATH, "td[2]")
-            ans.append(v.text)
+            ans.append(format_text(v.text))
     except TimeoutException:
         ans = []
 
