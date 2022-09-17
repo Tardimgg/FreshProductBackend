@@ -1,6 +1,9 @@
+from selenium.webdriver.support import expected_conditions as ec
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
+
 import os
 
 def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
@@ -23,7 +26,6 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
 
     # driver = webdriver.Chrome(chrome_options=options)
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=options)
-    driver.implicitly_wait(20)
     driver.get("https://proverkacheka.com/")
 
     elem = driver.find_element(By.ID, "b-checkform_fn")
@@ -52,6 +54,7 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
 
     ans = ["kok"]
 
+    elem_wait = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "b-check_item")))
     elem = driver.find_elements(By.CLASS_NAME, "b-check_item")
     for td in elem:
         v = td.find_element(By.XPATH, "td[2]")
