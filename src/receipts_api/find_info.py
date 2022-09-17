@@ -57,5 +57,6 @@ def get_receipt_info(fn, fd, fp, total_sum, date, time, receipt_type):
         v = td.find_element(By.XPATH, "td[2]")
         ans.append(v.text)
 
-    return ans
+    return [fn, fd, fp, total_sum, date, time, receipt_type]
+    # return ans
 
